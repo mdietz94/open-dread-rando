@@ -245,6 +245,15 @@ class ActorPickup(BasePickup):
         for level_pkg in pkgs_for_level:
             editor.ensure_present(level_pkg, "system/animtrees/base.bmsat")
 
+            # Multi-model pickups keep the template's own action set refs
+            # (e.g. actors/items/itemsphere/charclasses/timeline.bmsas), but
+            # s080_shipyard and s090_skybase are the only scenarios whose pkgs
+            # don't already contain the itemsphere assets. Ensure every ref so
+            # actor init never dereferences an unresolvable action set, which
+            # crashes the game on scenario load.
+            for action_set_ref in new_template.action_set_refs:
+                editor.ensure_present(level_pkg, action_set_ref)
+
             for name in model_names:
                 selected_model_data = model_data.get_data(name)
                 editor.ensure_present(level_pkg, selected_model_data.bmsas)
